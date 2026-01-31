@@ -1,0 +1,1224 @@
+{
+  "name": "Social media reels",
+  "nodes": [
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "id"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Create a script of a social media video of 3s about the topic included below.\n\nThe video will be organized in scenes. Each scene has a voice over and an image.\nThe voice over text must be at least 20 words.\nThere should be not more than 4 scenes.\nYour response must be in JSON format following this schema:\n{\n   \"scenes\": [{\n      \"voiceOverText\": \"text here\",\n      \"imagePrompt\": \"prompt here\"\n    }]\n}\n\nThe image prompt must be written in ENGLISH, being detailed and photo realistic. In the image prompt, you MUST AVOID describing any situation in the image that can be considered unappropriate (violence, disgusting, gore, sex, nudity, NSFW, etc) as it may be rejected by the AI service.",
+              "role": "system"
+            },
+            {
+              "content": "={{ $json.Topic }}\n{{ $json.Language }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -2656,
+        432
+      ],
+      "id": "add3c8b0-c6f0-45bd-9b61-53270d72c610",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "wIHel9dqlvgnYdQ9",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -3776,
+        480
+      ],
+      "id": "1fa28a25-1e81-4642-9f22-13e2827e3230",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.movie.status }}",
+                    "rightValue": "done",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Done"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "17c132d0-6142-4a07-b132-f28027949bec",
+                    "leftValue": "={{ $json.movie.status }}",
+                    "rightValue": "error",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Error"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b6381708-9a0d-4b23-9efc-fdfaccb2cbac",
+                    "leftValue": "={{ $json.movie.status }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Processing"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1696,
+        400
+      ],
+      "id": "4464bb45-b701-4166-bff5-92c8dbceccd2",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "errorMessage": "={{ $('Check status').item.json.movie.message }}"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -1472,
+        336
+      ],
+      "id": "c99fbe07-3c6f-4cd0-8df9-220dfa4b1eb3",
+      "name": "Stop and Error",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "https://api.json2video.com/v2/movies",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "project",
+              "value": "={{ $('Submit a new job').item.json.project }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "0C3JlvVTJAIFDfZ2KCFFrFdgZDCmDF21khKRgG4l"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1920,
+        352
+      ],
+      "id": "6b094109-9992-4fb1-afdb-2ed15af06b57",
+      "name": "Check status"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.json2video.com/v2/movies",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "0C3JlvVTJAIFDfZ2KCFFrFdgZDCmDF21khKRgG4l"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n    \"template\": \"hShBhvAYM4Xd9mq5pceu\",\n    \"variables\": {\n        \"voice\": $('Get row(s) in sheet').item.json['Voice Name'],\n        \"voiceModel\": $('Get row(s) in sheet').item.json['Voice Model'],\n        \"imageModel\": $('Get row(s) in sheet').item.json['Image Model'],\n        \"subtitlesModel\": $('Get row(s) in sheet').item.json['Subtiltes Model'],\n        \"scenes\": $('OpenAI').item.json.message.content.scenes,\n        \"fontFamily\": $('Get row(s) in sheet').item.json['Subtitles Font']\n    }\n} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2368,
+        416
+      ],
+      "id": "66409c25-8e3b-477e-a64e-950f358e937e",
+      "name": "Submit a new job"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -2144,
+        416
+      ],
+      "id": "d657bcac-2919-48ac-a4b1-ac44f60fc67d",
+      "name": "Wait for 15 seconds",
+      "webhookId": "2c8145b5-9da2-4e3c-a51f-c8fb4828a6e1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1RBFlUpgxHv1RAL9B5jo_HE68ONxrrFVEwec9GgFhZns",
+          "mode": "list",
+          "cachedResultName": "Social Media",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RBFlUpgxHv1RAL9B5jo_HE68ONxrrFVEwec9GgFhZns/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RBFlUpgxHv1RAL9B5jo_HE68ONxrrFVEwec9GgFhZns/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "ToDo"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -3424,
+        480
+      ],
+      "id": "545050ee-b6bd-4754-b443-774ac2b5dc9d",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AH5CE8GH6qheqxeb",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1RBFlUpgxHv1RAL9B5jo_HE68ONxrrFVEwec9GgFhZns",
+          "mode": "list",
+          "cachedResultName": "Social Media",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RBFlUpgxHv1RAL9B5jo_HE68ONxrrFVEwec9GgFhZns/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RBFlUpgxHv1RAL9B5jo_HE68ONxrrFVEwec9GgFhZns/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+            "Status": "Done",
+            "Result": "={{ $('Check status').item.json.movie.url }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Language",
+              "displayName": "Language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Voice Name",
+              "displayName": "Voice Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Voice Model",
+              "displayName": "Voice Model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image Model",
+              "displayName": "Image Model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subtiltes Model",
+              "displayName": "Subtiltes Model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subtitles Font",
+              "displayName": "Subtitles Font",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Result",
+              "displayName": "Result",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1472,
+        512
+      ],
+      "id": "5d615fdc-85ca-4784-8c81-eea617b229f5",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AH5CE8GH6qheqxeb",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v23.0/778869611980592/photos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer EAAMZCLa2SZCLMBQsnSXh0YfT7ZA3Y8i4qzZAo8GVOmBrftw41uZBz0tudBzItSqLu2ZBeqhVR8Hr7d3l6ij3VjDCFUCIb4BI1JctnsMWZBZAT2ZCeb7fSiddVd8LKOjydxN6ReCayZA1esDbmgSezEVFTdk00joqjvPPD77j3qM9osbtVpjAWxMAvkP0cOPHhBfuvFNgBWzetw"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "caption"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "source",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2368,
+        608
+      ],
+      "id": "bb614cc8-4b49-4f9d-91b0-c399890a005e",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "image/png"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"inputs\": {{ $json.Topic.toJsonString() }}, \n  \"parameters\": {\n    \"num_inference_steps\": 5\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2656,
+        608
+      ],
+      "id": "aa6e038e-342a-432e-a36c-6834b51c045f",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.Result }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1248,
+        512
+      ],
+      "id": "3021f2e2-0b3e-42cb-a668-7f8c62250966",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v23.0/778869611980592/videos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer EAAMZCLa2SZCLMBQsnSXh0YfT7ZA3Y8i4qzZAo8GVOmBrftw41uZBz0tudBzItSqLu2ZBeqhVR8Hr7d3l6ij3VjDCFUCIb4BI1JctnsMWZBZAT2ZCeb7fSiddVd8LKOjydxN6ReCayZA1esDbmgSezEVFTdk00joqjvPPD77j3qM9osbtVpjAWxMAvkP0cOPHhBfuvFNgBWzetw"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "description",
+              "value": "={{ $('AI Agent2').item.json.output }}"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -880,
+        496
+      ],
+      "id": "17c87185-d9b3-4832-98c6-834eabf4d773",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "86003b19-2080-45e9-bc22-8881d5a095ab",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3424,
+        864
+      ],
+      "id": "a30bdfcb-4850-417e-a1b2-92aaf7ec2aa2",
+      "name": "Webhook",
+      "webhookId": "86003b19-2080-45e9-bc22-8881d5a095ab"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "13b7e5b5-3d7b-4dac-bb07-5461d991f2f0",
+              "leftValue": "={{ $json.query['hub.mode'] }}",
+              "rightValue": "subscribe",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "2d63d22c-d7b6-4f0d-9588-cc2157df1c95",
+              "leftValue": "={{ $json.query['hub.verify_token'] }}",
+              "rightValue": "agent",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2992,
+        848
+      ],
+      "id": "57219e03-8997-4ce6-b6da-ee42b57dc1e2",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -2720,
+        832
+      ],
+      "id": "a64acf41-b88f-4c80-a904-2d523726e21d",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.entry[0].messaging[0].message.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -3008,
+        992
+      ],
+      "id": "c1aa69d4-d512-4dfb-acf6-398faa2d4a1f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -2784,
+        1264
+      ],
+      "id": "0e67b344-809c-476a-bd75-181f764b7705",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "wIHel9dqlvgnYdQ9",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.entry[0].messaging[0].sender.id }}",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -2656,
+        1312
+      ],
+      "id": "e526edf8-3b7d-49ae-acbc-88d5d42b68e0",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v24.0/{{ $('Webhook').item.json.body.entry[0].messaging[0].recipient.id }}/messages",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "EAAR7ve9ojBMBQhkEfZAn4k5cpGMxwzFibXpve9PTnaRRBcOkZAVslZAvEarI3YTMJBJ2ITJZAaz4pA2u7bdOow6jL6K4aYhjRt4e61dUi3DehRb0zkhfOpACbJ77qGAEfCM01hGxJ1BR319LJmIGRf4NoM2uhoLjYi18lEEIPucDCrRYeQrU52ek79hJOo2LATOFGZBZAUogZDZD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"{{ $json.output }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2672,
+        1056
+      ],
+      "id": "324bfa41-eadf-430a-9efe-969cf7df13fe",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "bb839a90-3128-4dd8-8e55-c694c4f12aaf",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3360,
+        1104
+      ],
+      "id": "a7b7e95a-5bc3-4886-8939-84c1b5ddbb14",
+      "name": "Webhook1",
+      "webhookId": "bb839a90-3128-4dd8-8e55-c694c4f12aaf"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "64b1f833-0216-4810-9028-f89749bc9238",
+              "leftValue": "={{ $json.query['hub.mode'] }}",
+              "rightValue": "subscribe",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "08142457-79fe-456f-9178-09922ee523ab",
+              "leftValue": "={{ $json.query['hub.verify_token'] }}",
+              "rightValue": "agent",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3040,
+        1232
+      ],
+      "id": "0cb12d8b-2500-4aa9-8d9b-d9911f666def",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -2512,
+        1488
+      ],
+      "id": "f3b765be-9140-4e6f-b47b-fd093ad7e100",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.entry[0].messaging[0].message.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -2992,
+        1424
+      ],
+      "id": "c037429f-faee-41fe-9421-b204da235c58",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -2992,
+        1744
+      ],
+      "id": "132654d7-e6a0-423f-9cea-f3fdb9301aa6",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "wIHel9dqlvgnYdQ9",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.entry[0].messaging[0].sender.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -2864,
+        1744
+      ],
+      "id": "75862b44-68ed-45c6-84a7-593785d4121f",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.instagram.com/v24.0/{{ $('Webhook1').item.json.body.entry[0].messaging[0].recipient.id }}/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer IGAFpxNAINL3hBZAGI1MFZAZAX25GaDBKN2E3cFpxUGtIS3ZAMcGsyRF9HbzJlTmtIM2ZAubWhwYzF4d2ZAiV2VpSlpxR3NxdTcwTlVjdmxzZAHZAaMmUzN0VpNVd2X2M1ek1CWmNORjdWaE9pREc0UEpyb05GSDZAiaHlUY0JMY19GaUExWQZDZD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Webhook1').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"message\": {\n    \"text\": \"{{ $json.output }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2512,
+        1648
+      ],
+      "id": "6811c89b-8e1f-4160-b96d-af51460a79db",
+      "name": "HTTP Request5"
+    },
+    {
+      "parameters": {
+        "resource": "reels",
+        "node": "17841480628962477",
+        "graphApiVersion": "v24.0",
+        "videoUrl": "={{ $json.Result }}",
+        "caption": "This Is My Ai Vedio"
+      },
+      "type": "@mookielianhd/n8n-nodes-instagram.instagram",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        768
+      ],
+      "id": "e9b52dcc-f00a-4f14-9d69-8fa083a7b4d7",
+      "name": "Publish",
+      "credentials": {
+        "instagramApi": {
+          "id": "Lq0lrVvDZ7HUlXZI",
+          "name": "Instagram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Role: You are a master researcher and elite content strategist. You possess the ability to take any subject—no matter how niche or complex—and synthesize it into a clear, engaging, and comprehensive piece of writing.\n\nObjective: Write a high-quality, structured output on the provided [{{ $json.Topic }}].\n\nGuidelines:\n\nAnalyze the Intent: Determine if the topic requires a factual explanation, a persuasive argument, or a creative narrative based on the nature of the keywords.\n\nStructure: Do not produce a wall of text. Use a logical flow:\n\nHook/Introduction: Define the topic and why it matters.\n\nKey Pillars: Break the topic down into 3–5 main sub-themes or arguments.\n\nNuance: Mention counter-arguments, challenges, or common misconceptions.\n\nConclusion: Summarize and provide a forward-looking thought or \"key takeaway.\"\n\nTone: Professional, authoritative, yet accessible (unless a different tone is specified).\n\nFormatting: Use Markdown extensively. Use Bold for emphasis, ## Headings for hierarchy, and bullet points for readability.\n\nInput Variable: TOPIC: [{{ $json.Topic }}] TARGET FORMAT: [Optional: e.g., Blog Post, Essay, Memo, Twitter Thread]",
+        "options": {
+          "systemMessage": "Role: You are a master researcher and elite content strategist. You possess the ability to take any subject—no matter how niche or complex—and synthesize it into a clear, engaging, and comprehensive piece of writing.\n\nObjective: Write a high-quality, structured output on the provided [TOPIC].\n\nGuidelines:\n\nAnalyze the Intent: Determine if the topic requires a factual explanation, a persuasive argument, or a creative narrative based on the nature of the keywords.\n\nStructure: Do not produce a wall of text. Use a logical flow:\n\nHook/Introduction: Define the topic and why it matters.\n\nKey Pillars: Break the topic down into 3–5 main sub-themes or arguments.\n\nNuance: Mention counter-arguments, challenges, or common misconceptions.\n\nConclusion: Summarize and provide a forward-looking thought or \"key takeaway.\"\n\nTone: Professional, authoritative, yet accessible (unless a different tone is specified).\n\nFormatting: Use Markdown extensively. Use Bold for emphasis, ## Headings for hierarchy, and bullet points for readability.\n\nInput Variable: TOPIC: [Insert Topic Here] TARGET AUDIENCE: [Optional: e.g., Beginners, Experts, Children] FORMAT: [Optional: e.g., Blog Post, Essay, Memo, Twitter Thread]"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -2992,
+        352
+      ],
+      "id": "82ccd218-ee54-4d52-8784-dd177171c58f",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -3040,
+        672
+      ],
+      "id": "2a6cc28f-738e-4639-ab85-c7ec19a55e08",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "wIHel9dqlvgnYdQ9",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Submit a new job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for 15 seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check status": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit a new job": {
+      "main": [
+        [
+          {
+            "node": "Wait for 15 seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for 15 seconds": {
+      "main": [
+        [
+          {
+            "node": "Check status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Publish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "41cf3aed-bb0a-48ba-a390-d6a359e62700",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "18562b727cdc9700435ceb4dbe5a8adcb704c7fbba91bd06d1deab825ddc293f"
+  },
+  "id": "qS0-Mus4oRV2-N6Nc1fV9",
+  "tags": []
+}
